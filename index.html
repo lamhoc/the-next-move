@@ -8,16 +8,31 @@
     <ul id="list-ban"></ul>
 
     <script>
-        fetch('/api/ban')
-            .then(res => res.json())
-            .then(data => {
-                const list = document.getElementById('list-ban');
-                data.forEach(ban => {
+        <script>
+    fetch('/api/test') // Hoặc /api/ban tùy theo tên bạn đặt trong server.js
+        .then(res => res.json())
+        .then(response => {
+            const list = document.getElementById('list-ban');
+            // Vì dữ liệu nằm trong response.data
+            const mangBan = response.data; 
+
+            if(!mangBan || mangBan.length === 0) {
+                list.innerHTML = "<li>Không có bàn nào trong cơ sở dữ liệu.</li>";
+            } else {
+                list.innerHTML = ""; // Xóa dòng chữ đang load (nếu có)
+                mangBan.forEach(ban => {
                     let li = document.createElement('li');
-                    li.textContent = `${ban.TenBan} - ${ban.TrangThai}`;
+                    li.style.padding = "10px";
+                    li.style.borderBottom = "1px solid #ddd";
+                    li.innerHTML = `<strong>${ban.TenBan}</strong> - Trạng thái: <span style="color: green">${ban.TrangThai}</span>`;
                     list.appendChild(li);
                 });
-            });
-    </script>
+            }
+        })
+        .catch(err => {
+            console.error("Lỗi:", err);
+            document.getElementById('list-ban').innerHTML = "Lỗi kết nối API!";
+        });
+</script>
 </body>
 </html>

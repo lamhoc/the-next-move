@@ -126,6 +126,27 @@
         <!-- Section Board Game -->
         <section id="sec-game" class="hidden">
             <h1>Danh sách Board Game</h1>
+            <!-- Section Board Game -->
+<section id="sec-game" class="hidden">
+    <h1>Kho Board Game</h1>
+    
+    <!-- Form thêm game mới -->
+    <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <h3>Thêm Game Mới</h3>
+        <input type="text" id="add-tengame" placeholder="Tên Game" style="padding: 8px; margin-right: 5px;">
+        <input type="text" id="add-theloai" placeholder="Thể loại" style="padding: 8px; margin-right: 5px;">
+        <select id="add-tinhtrang" style="padding: 8px; margin-right: 5px;">
+            <option value="Sẵn sàng">Sẵn sàng</option>
+            <option value="Đang mượn">Đang mượn</option>
+            <option value="Bảo trì">Bảo trì</option>
+        </select>
+        <button onclick="addNewGame()">Lưu vào CSDL</button>
+    </div>
+
+    <table id="table-game">
+        <!-- ... giữ nguyên phần table cũ ... -->
+    </table>
+</section>
             <table>
                 <thead>
                     <tr>

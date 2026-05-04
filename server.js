@@ -15,6 +15,20 @@ db.connect((err) => {
     console.log('Kết nối Database thành công!');
 });
 
+app.get('/api/hoa-don', (req, res) => {
+    const query = `
+        SELECT HD.MaHD, KH.HoTen AS TenKhach, NV.HoTen AS TenNhanVien, B.TenBan, HD.TongTien, HD.NgayLap
+        FROM HOA_DON HD
+        JOIN KHACH_HANG KH ON HD.MaKH = KH.MaKH
+        JOIN NHAN_VIEN NV ON HD.MaNV = NV.MaNV
+        JOIN BAN B ON HD.MaBan = B.MaBan
+    `;
+    db.query(query, (err, results) => {
+        if (err) return res.status(500).send(err);
+        res.json(results);
+    });
+});
+
 // Route test lấy dữ liệu từ bảng BAN bạn vừa tạo thành công
 app.get('/api/test', (req, res) => {
     db.query("SELECT * FROM BAN", (err, results) => {

@@ -158,6 +158,43 @@
     </div>
 
     <script>
+        // Hàm hiển thị khu vực và gọi dữ liệu tương ứng
+function showSection(id) {
+    document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+
+    // Tùy theo id mà gọi API khác nhau
+    if (id === 'sec-ban') loadBan();
+    if (id === 'sec-hoadon') loadHoaDon();
+    if (id === 'sec-game') loadGames();
+    if (id === 'sec-nhanvien') loadNhanVien();
+}
+
+// Tải dữ liệu Board Game
+function loadGames() {
+    fetch('/api/games')
+        .then(res => res.json())
+        .then(data => {
+            const tbody = document.getElementById('body-game');
+            tbody.innerHTML = data.map(g => `
+                <tr>
+                    <td>${g.TenGame}</td>
+                    <td>${g.TheLoai}</td>
+                    <td>${g.TinhTrang}</td>
+                </tr>
+            `).join('');
+        });
+}
+
+// Tải dữ liệu Nhân viên
+function loadNhanVien() {
+    fetch('/api/nhan-vien')
+        .then(res => res.json())
+        .then(data => {
+            const list = document.getElementById('list-nhanvien');
+            list.innerHTML = data.map(nv => `<li><strong>${nv.HoTen}</strong> - ${nv.ChucVu}</li>`).join('');
+        });
+}
         // Chuyển đổi giữa các mục Menu
         function showSection(id) {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));

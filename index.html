@@ -1,38 +1,211 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-    <title>The Next Move - Đặt bàn</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Next Move - Dashboard</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #3498db;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            background-color: var(--light);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: var(--primary);
+            color: white;
+            padding: 20px;
+            flex-shrink: 0;
+        }
+
+        .sidebar h2 { text-align: center; border-bottom: 1px solid var(--secondary); padding-bottom: 10px; }
+        
+        .sidebar ul { list-style: none; padding: 0; }
+        
+        .sidebar ul li {
+            padding: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+
+        .sidebar ul li:hover { background-color: var(--accent); }
+
+        /* Main Content */
+        .main-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        /* Grid hiển thị bàn */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            border-top: 5px solid #ccc;
+        }
+
+        .card.trong { border-top-color: var(--success); }
+        .card.da-dat { border-top-color: var(--danger); }
+
+        /* Table định dạng cho Hóa đơn/Nhân viên/Game */
+        table {
+            width: 100%;
+            background: white;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        table th, table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ddd; }
+        table th { background-color: var(--accent); color: white; }
+
+        .hidden { display: none; }
+    </style>
 </head>
 <body>
-    <h1>Danh sách bàn trống</h1>
-    <ul id="list-ban"></ul>
+
+    <nav class="sidebar">
+        <h2>The Next Move</h2>
+        <ul>
+            <li onclick="showSection('sec-ban')">Quản lý Bàn</li>
+            <li onclick="showSection('sec-game')">Kho Board Game</li>
+            <li onclick="showSection('sec-hoadon')">Lịch sử Hóa đơn</li>
+            <li onclick="showSection('sec-nhanvien')">Nhân viên</li>
+        </ul>
+    </nav>
+
+    <div class="main-content">
+        <!-- Section Bàn -->
+        <section id="sec-ban">
+            <div class="header">
+                <h1>Sơ đồ Bàn</h1>
+                <button onclick="loadBan()">Làm mới</button>
+            </div>
+            <div id="grid-ban" class="grid-container">
+                <!-- Dữ liệu bàn đổ vào đây -->
+            </div>
+        </section>
+
+        <!-- Section Board Game -->
+        <section id="sec-game" class="hidden">
+            <h1>Danh sách Board Game</h1>
+            <table id="table-game">
+                <thead>
+                    <tr>
+                        <th>Tên Game</th>
+                        <th>Thể loại</th>
+                        <th>Tình trạng</th>
+                    </tr>
+                </thead>
+                <tbody id="body-game"></tbody>
+            </table>
+        </section>
+
+        <!-- Section Hóa Đơn -->
+        <section id="sec-hoadon" class="hidden">
+            <h1>Hóa đơn gần đây</h1>
+            <table id="table-hoadon">
+                <thead>
+                    <tr>
+                        <th>Mã HD</th>
+                        <th>Khách hàng</th>
+                        <th>Bàn</th>
+                        <th>Tổng tiền</th>
+                        <th>Thanh toán</th>
+                    </tr>
+                </thead>
+                <tbody id="body-hoadon"></tbody>
+            </table>
+        </section>
+
+        <!-- Section Nhân Viên -->
+        <section id="sec-nhanvien" class="hidden">
+            <h1>Đội ngũ nhân viên</h1>
+            <ul id="list-nhanvien"></ul>
+        </section>
+    </div>
 
     <script>
-        <script>
-    fetch('/api/test') // Hoặc /api/ban tùy theo tên bạn đặt trong server.js
-        .then(res => res.json())
-        .then(response => {
-            const list = document.getElementById('list-ban');
-            // Vì dữ liệu nằm trong response.data
-            const mangBan = response.data; 
+        // Chuyển đổi giữa các mục Menu
+        function showSection(id) {
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        }
 
-            if(!mangBan || mangBan.length === 0) {
-                list.innerHTML = "<li>Không có bàn nào trong cơ sở dữ liệu.</li>";
-            } else {
-                list.innerHTML = ""; // Xóa dòng chữ đang load (nếu có)
-                mangBan.forEach(ban => {
-                    let li = document.createElement('li');
-                    li.style.padding = "10px";
-                    li.style.borderBottom = "1px solid #ddd";
-                    li.innerHTML = `<strong>${ban.TenBan}</strong> - Trạng thái: <span style="color: green">${ban.TrangThai}</span>`;
-                    list.appendChild(li);
+        // 1. Tải danh sách Bàn
+        function loadBan() {
+            fetch('/api/test') // Sử dụng route test bạn đã chạy thành công
+                .then(res => res.json())
+                .then(response => {
+                    const grid = document.getElementById('grid-ban');
+                    grid.innerHTML = '';
+                    response.data.forEach(ban => {
+                        const div = document.createElement('div');
+                        const statusClass = (ban.TrangThai === 'Trống') ? 'trong' : 'da-dat';
+                        div.className = `card ${statusClass}`;
+                        div.innerHTML = `
+                            <h3>${ban.TenBan}</h3>
+                            <p>${ban.TrangThai}</p>
+                            ${ban.TrangThai === 'Trống' ? '<button>Đặt bàn</button>' : ''}
+                        `;
+                        grid.appendChild(div);
+                    });
                 });
-            }
-        })
-        .catch(err => {
-            console.error("Lỗi:", err);
-            document.getElementById('list-ban').innerHTML = "Lỗi kết nối API!";
-        });
-</script>
+        }
+
+        // Gọi mặc định khi load trang
+        loadBan();
+
+        // 2. Các hàm tải dữ liệu khác (Bạn cần viết thêm Route API tương ứng trong server.js cho các bảng còn lại)
+        // Ví dụ load Hóa đơn
+        function loadHoaDon() {
+            fetch('/api/hoa-don')
+                .then(res => res.json())
+                .then(data => {
+                    const tbody = document.getElementById('body-hoadon');
+                    tbody.innerHTML = data.map(hd => `
+                        <tr>
+                            <td>${hd.MaHD}</td>
+                            <td>${hd.TenKhach}</td>
+                            <td>${hd.TenBan}</td>
+                            <td>${hd.TongTien}đ</td>
+                            <td>${hd.HinhThucThanhToan}</td>
+                        </tr>
+                    `).join('');
+                });
+        }
+    </script>
 </body>
 </html>

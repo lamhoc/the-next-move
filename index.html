@@ -32,9 +32,7 @@
         }
 
         .sidebar h2 { text-align: center; border-bottom: 1px solid var(--secondary); padding-bottom: 10px; }
-        
         .sidebar ul { list-style: none; padding: 0; }
-        
         .sidebar ul li {
             padding: 15px;
             cursor: pointer;
@@ -42,7 +40,6 @@
             border-radius: 5px;
             margin-bottom: 5px;
         }
-
         .sidebar ul li:hover { background-color: var(--accent); }
 
         /* Main Content */
@@ -78,7 +75,6 @@
         .card.trong { border-top-color: var(--success); }
         .card.da-dat { border-top-color: var(--danger); }
 
-        /* Table định dạng cho Hóa đơn/Nhân viên/Game */
         table {
             width: 100%;
             background: white;
@@ -92,6 +88,17 @@
         table th { background-color: var(--accent); color: white; }
 
         .hidden { display: none; }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover { opacity: 0.8; }
     </style>
 </head>
 <body>
@@ -113,15 +120,13 @@
                 <h1>Sơ đồ Bàn</h1>
                 <button onclick="loadBan()">Làm mới</button>
             </div>
-            <div id="grid-ban" class="grid-container">
-                <!-- Dữ liệu bàn đổ vào đây -->
-            </div>
+            <div id="grid-ban" class="grid-container"></div>
         </section>
 
         <!-- Section Board Game -->
         <section id="sec-game" class="hidden">
             <h1>Danh sách Board Game</h1>
-            <table id="table-game">
+            <table>
                 <thead>
                     <tr>
                         <th>Tên Game</th>
@@ -136,7 +141,7 @@
         <!-- Section Hóa Đơn -->
         <section id="sec-hoadon" class="hidden">
             <h1>Hóa đơn gần đây</h1>
-            <table id="table-hoadon">
+            <table>
                 <thead>
                     <tr>
                         <th>Mã HD</th>
@@ -153,68 +158,38 @@
         <!-- Section Nhân Viên -->
         <section id="sec-nhanvien" class="hidden">
             <h1>Đội ngũ nhân viên</h1>
-            <ul id="list-nhanvien"></ul>
+            <ul id="list-nhanvien" style="background: white; padding: 20px; border-radius: 10px; list-style-type: none;"></ul>
         </section>
     </div>
 
     <script>
-        function datBan(id) {
-    if(!confirm("Bạn có chắc chắn muốn đặt bàn này?")) return;
-
-    fetch(`/api/dat-ban/${id}`, { method: 'POST' })
-        .then(res => res.json())
-        .then(data => {
-            alert(data.message);
-            loadBan(); // Tải lại danh sách bàn để cập nhật màu sắc
-        })
-        .catch(err => console.error("Lỗi đặt bàn:", err));
-}
-        // Hàm hiển thị khu vực và gọi dữ liệu tương ứng
-function showSection(id) {
-    document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-    document.getElementById(id).classList.remove('hidden');
-
-    // Tùy theo id mà gọi API khác nhau
-    if (id === 'sec-ban') loadBan();
-    if (id === 'sec-hoadon') loadHoaDon();
-    if (id === 'sec-game') loadGames();
-    if (id === 'sec-nhanvien') loadNhanVien();
-}
-
-// Tải dữ liệu Board Game
-function loadGames() {
-    fetch('/api/games')
-        .then(res => res.json())
-        .then(data => {
-            const tbody = document.getElementById('body-game');
-            tbody.innerHTML = data.map(g => `
-                <tr>
-                    <td>${g.TenGame}</td>
-                    <td>${g.TheLoai}</td>
-                    <td>${g.TinhTrang}</td>
-                </tr>
-            `).join('');
-        });
-}
-
-// Tải dữ liệu Nhân viên
-function loadNhanVien() {
-    fetch('/api/nhan-vien')
-        .then(res => res.json())
-        .then(data => {
-            const list = document.getElementById('list-nhanvien');
-            list.innerHTML = data.map(nv => `<li><strong>${nv.HoTen}</strong> - ${nv.ChucVu}</li>`).join('');
-        });
-}
-        // Chuyển đổi giữa các mục Menu
+        // 1. Hàm chuyển đổi Section (CHỈ GIỮ MỘT HÀM NÀY)
         function showSection(id) {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
+
+            if (id === 'sec-ban') loadBan();
+            if (id === 'sec-hoadon') loadHoaDon();
+            if (id === 'sec-game') loadGames();
+            if (id === 'sec-nhanvien') loadNhanVien();
         }
 
-        // 1. Tải danh sách Bàn
+        // 2. Hàm đặt bàn
+        function datBan(id) {
+            if(!confirm("Bạn có chắc chắn muốn đặt bàn này?")) return;
+
+            fetch(`/api/dat-ban/${id}`, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    alert(data.message);
+                    loadBan(); 
+                })
+                .catch(err => console.error("Lỗi đặt bàn:", err));
+        }
+
+        // 3. Tải danh sách Bàn
         function loadBan() {
-            fetch('/api/test') // Sử dụng route test bạn đã chạy thành công
+            fetch('/api/test')
                 .then(res => res.json())
                 .then(response => {
                     const grid = document.getElementById('grid-ban');
@@ -226,18 +201,40 @@ function loadNhanVien() {
                         div.innerHTML = `
                             <h3>${ban.TenBan}</h3>
                             <p>${ban.TrangThai}</p>
-                            ${ban.TrangThai === 'Trống' ? '<button>Đặt bàn</button>' : ''}
+                            ${ban.TrangThai === 'Trống' ? `<button onclick="datBan(${ban.MaBan})">Đặt bàn</button>` : ''}
                         `;
                         grid.appendChild(div);
                     });
                 });
         }
 
-        // Gọi mặc định khi load trang
-        loadBan();
+        // 4. Tải danh sách Board Game
+        function loadGames() {
+            fetch('/api/games')
+                .then(res => res.json())
+                .then(data => {
+                    const tbody = document.getElementById('body-game');
+                    tbody.innerHTML = data.map(g => `
+                        <tr>
+                            <td>${g.TenGame}</td>
+                            <td>${g.TheLoai}</td>
+                            <td>${g.TinhTrang}</td>
+                        </tr>
+                    `).join('');
+                });
+        }
 
-        // 2. Các hàm tải dữ liệu khác (Bạn cần viết thêm Route API tương ứng trong server.js cho các bảng còn lại)
-        // Ví dụ load Hóa đơn
+        // 5. Tải danh sách Nhân viên
+        function loadNhanVien() {
+            fetch('/api/nhan-vien')
+                .then(res => res.json())
+                .then(data => {
+                    const list = document.getElementById('list-nhanvien');
+                    list.innerHTML = data.map(nv => `<li><strong>${nv.HoTen}</strong> - ${nv.ChucVu}</li>`).join('');
+                });
+        }
+
+        // 6. Tải danh sách Hóa đơn
         function loadHoaDon() {
             fetch('/api/hoa-don')
                 .then(res => res.json())
@@ -248,12 +245,15 @@ function loadNhanVien() {
                             <td>${hd.MaHD}</td>
                             <td>${hd.TenKhach}</td>
                             <td>${hd.TenBan}</td>
-                            <td>${hd.TongTien}đ</td>
+                            <td>${Number(hd.TongTien).toLocaleString()}đ</td>
                             <td>${hd.HinhThucThanhToan}</td>
                         </tr>
                     `).join('');
                 });
         }
+
+        // Mặc định load bàn khi vào trang
+        loadBan();
     </script>
 </body>
 </html>

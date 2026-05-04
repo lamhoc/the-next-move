@@ -72,3 +72,23 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => { console.log(`Server chạy tại port ${PORT}`); });
+
+// 5. Thêm Board Game mới (Tính năng CREATE)
+app.post('/api/add-game', (req, res) => {
+    const { TenGame, TheLoai, TinhTrang } = req.body;
+    const query = "INSERT INTO BOARD_GAME (TenGame, TheLoai, TinhTrang) VALUES (?, ?, ?)";
+    db.query(query, [TenGame, TheLoai, TinhTrang], (err, result) => {
+        if (err) return res.status(500).send(err);
+        res.json({ message: "Thêm game thành công!" });
+    });
+});
+
+// 6. Hủy đặt bàn (Tính năng UPDATE trạng thái)
+app.post('/api/huy-dat/:id', (req, res) => {
+    const maBan = req.params.id;
+    const query = "UPDATE BAN SET TrangThai = 'Trống' WHERE MaBan = ?";
+    db.query(query, [maBan], (err, result) => {
+        if (err) return res.status(500).send(err);
+        res.json({ message: "Đã giải phóng bàn trống!" });
+    });
+});

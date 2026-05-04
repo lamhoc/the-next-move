@@ -1,31 +1,35 @@
 const express = require('express');
 const mysql = require('mysql2');
-const cors = require('cors');
 const app = express();
 
-app.use(cors());
-app.use(express.json());
+// Kết nối bằng link MYSQL_URL từ Railway
+const connectionUri = "mysql://root:VXfQHDkTmWpSvfrEiuTljiAStgcckKEU@mysql.railway.internal:3306/railway"; // Thay bằng link của bạn
 
-// Kết nối database bằng biến môi trường của Railway
-const db = mysql.createConnection(process.env.MYSQL_URL || {
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'coffee_db'
+const db = mysql.createConnection(connectionUri);
+
+db.connect((err) => {
+    if (err) {
+        console.error('Kết nối Database thất bại: ' + err.stack);
+        return;
+    }
+    console.log('Kết nối Database thành công!');
 });
 
-db.connect(err => {
-    if (err) console.log("Lỗi kết nối DB: ", err);
-    else console.log("Đã kết nối Database thành công!");
-});
-
-// API lấy danh sách bàn trống
-app.get('/api/ban', (req, res) => {
-    db.query("SELECT * FROM BAN WHERE TrangThai = 'Trống'", (err, result) => {
-        if (err) res.status(500).send(err);
-        else res.json(result);
+// Route test lấy dữ liệu từ bảng BAN bạn vừa tạo thành công
+app.get('/api/test', (req, res) => {
+    db.query("SELECT * FROM BAN", (err, results) => {
+        if (err) {
+            res.status(500).send("Lỗi truy vấn: " + err);
+        } else {
+            res.json({
+                message: "Kết nối web và SQL thành công!",
+                data: results
+            });
+        }
     });
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server chạy tại port ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`Server đang chạy tại port ${PORT}`);
+});

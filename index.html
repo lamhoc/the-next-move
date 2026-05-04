@@ -158,6 +158,17 @@
     </div>
 
     <script>
+        function datBan(id) {
+    if(!confirm("Bạn có chắc chắn muốn đặt bàn này?")) return;
+
+    fetch(`/api/dat-ban/${id}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            loadBan(); // Tải lại danh sách bàn để cập nhật màu sắc
+        })
+        .catch(err => console.error("Lỗi đặt bàn:", err));
+}
         // Hàm hiển thị khu vực và gọi dữ liệu tương ứng
 function showSection(id) {
     document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));

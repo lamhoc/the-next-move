@@ -3,7 +3,7 @@ const mysql = require('mysql2');
 const app = express();
 
 // Kết nối bằng link MYSQL_URL từ Railway
-const connectionUri = "mysql://root:VXfQHDkTmWpSvfrEiuTljiAStgcckKEU@mysql.railway.internal:3306/railway"; // Thay bằng link của bạn
+const connectionUri = "mysql://root:VXfQHDkTmWpSvfrEiuTljiAStgcckKEU@tramway.proxy.rlwy.net:57908/railway"; // Thay bằng link của bạn
 
 const db = mysql.createConnection(connectionUri);
 

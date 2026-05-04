@@ -30,6 +30,15 @@ app.get('/api/test', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
+const path = require('path');
+
+// Chỉ cho server biết thư mục chứa file giao diện
+app.use(express.static(__dirname)); 
+
+// Khi vào địa chỉ gốc, trả về file index.html
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 app.listen(PORT, () => {
     console.log(`Server đang chạy tại port ${PORT}`);
 });

@@ -15,7 +15,17 @@ db.connect((err) => {
 app.use(express.static(__dirname));
 
 // --- CÁC CỔNG DỮ LIỆU (API) ---
+// Thêm dòng này ở đầu file server.js (dưới chỗ require express)
+app.use(express.json()); 
 
+app.post('/api/dat-ban/:id', (req, res) => {
+    const maBan = req.params.id;
+    const query = "UPDATE BAN SET TrangThai = 'Đã đặt' WHERE MaBan = ?";
+    db.query(query, [maBan], (err, result) => {
+        if (err) return res.status(500).send(err);
+        res.json({ message: "Đặt bàn thành công!" });
+    });
+});
 // 1. Lấy danh sách BÀN (Khớp với nút Quản lý Bàn)
 app.get('/api/test', (req, res) => {
     db.query("SELECT * FROM BAN", (err, results) => {

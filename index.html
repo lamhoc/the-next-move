@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quản Lý Board Game - BG-System</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div id="loginScreen" class="login-screen">
+        <div class="login-card">
+            <h2>Đăng nhập</h2>
+            <div class="login-tabs">
+                <label><input type="radio" name="loginType" value="employee" checked> Nhân viên / Admin</label>
+                <label><input type="radio" name="loginType" value="customer"> Khách hàng</label>
+            </div>
+            <div id="employeeLogin" class="login-fields">
+                <div class="form-group"><label>Tài khoản:</label><input type="text" id="loginUsername"
+                        placeholder="admin / staff1"></div>
+                <div class="form-group"><label>Mật khẩu:</label><input type="password" id="loginPassword"
+                        placeholder="123456"></div>
+            </div>
+            <div id="customerLogin" class="login-fields" style="display:none;">
+                <div class="form-group"><label>Số điện thoại:</label><input type="text" id="loginPhone"
+                        placeholder="0987654321"></div>
+            </div>
+            <button class="btn-add full-width" onclick="login()">Đăng nhập</button>
+            <button class="btn-delete full-width" onclick="showGuestDashboard()" style="margin-top: 10px; background: #95a5a6; border: none; border-radius: 8px; cursor: pointer; color: white; padding: 12px; font-weight: 600;">Quay lại trang chủ</button>
+            <p class="login-note">Khách hàng đăng nhập bằng số điện thoại. Nhân viên/Admin sử dụng tài khoản và mật
+                khẩu.</p>
+        </div>
+    </div>
+
+    <div class="dashboard-container" style="display:none;">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h2><i class="fa-solid fa-dice-d20"></i> BG-System</h2>
+            </div>
+            <ul class="nav-links">
+                <li id="navCustomerLink" style="display:none;"><a href="#" onclick="showPage('page-customer', this)"><i
+                            class="fa-solid fa-house"></i> Trang khách hàng</a></li>
+                <li id="navGamesLink"><a href="#" class="active" onclick="showPage('page-games', this)"><i
+                            class="fa-solid fa-layer-group"></i> Quản lý Kho Game</a></li>
+                <li id="navDrinksLink"><a href="#" onclick="showPage('page-drinks', this)"><i
+                            class="fa-solid fa-mug-hot"></i> Sản phẩm đồ uống</a></li>
+                <li id="navInvoicesLink"><a href="#" onclick="showPage('page-invoices', this)"><i
+                            class="fa-solid fa-file-invoice-dollar"></i> Hóa đơn & Đặt bàn</a></li>
+                <li id="navCustomersLink" style="display:none;"><a href="#"
+                        onclick="showPage('page-customers', this)"><i class="fa-solid fa-users"></i> Quản lý Khách
+                        hàng</a></li>
+            </ul>
+            <div class="user-info">
+                <p id="displayUser">Xin chào, <b>Admin</b></p>
+                <a href="javascript:void(0)" id="loginNavButton" onclick="showLoginScreen()" style="display:none;"><i class="fa-solid fa-right-to-bracket"></i> Đăng nhập</a>
+                <a href="javascript:void(0)" id="logoutButton"><i class="fa-solid fa-right-from-bracket"></i> Đăng
+                    xuất</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <section id="dashboard-banner" class="dashboard-banner">
+                <div class="banner-copy">
+                    <p class="eyebrow">BG-System Dashboard</p>
+                    <h1>Quản lý Board Game thông minh</h1>
+                    <p class="banner-text">Giao diện mới nổi bật, hiện đại và vẫn giữ nguyên kết nối dữ liệu thêm / xoá
+                        / sửa với database cũ.</p>
+                </div>
+                <div class="banner-actions">
+                    <button class="btn-add" onclick="openGameModal()"><i class="fa-solid fa-plus"></i> Thêm Game
+                        Mới</button>
+                </div>
+            </section>
+
+            <section id="customer-banner" class="customer-banner" style="display:none;">
+                <div class="customer-hero">
+                    <div class="hero-copy">
+                        <p class="eyebrow">Chào mừng khách hàng</p>
+                        <h1>Thư giãn cùng game và thức uống ngon</h1>
+                        <p class="banner-text">Khám phá game hot, đồ uống hấp dẫn và đặt bàn trống ngay trước khi đến.
+                        </p>
+                        <button class="btn-add"
+                            onclick="showPage('page-customer', document.getElementById('navCustomerLink').querySelector('a'))">Xem
+                            ngay</button>
+                    </div>
+                    <div class="hero-image">
+                        <img src="images/banner.jpg" id="bannerGameImage" alt="Board game">
+                    </div>
+                </div>
+            </section>
+
+            <!-- TRANG 1: QUẢN LÝ KHO GAME -->
+            <section id="page-games" class="content-page">
+                <header>
+                    <h1>Quản lý Danh mục Board Game</h1>
+                    <button class="btn-add" onclick="openGameModal()"><i class="fa-solid fa-plus"></i> Thêm Game
+                        Mới</button>
+                </header>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th class="name-column">Tên Game</th>
+                            <th class="price-column">Giá Thuê</th>
+                            <th class="status-column">Tình Trạng</th>
+                            <th class="action-column">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gameTableBody"></tbody>
+                </table>
+            </section>
+
+            <!-- TRANG 2: SẢN PHẨM ĐỒ UỐNG -->
+            <section id="page-drinks" class="content-page" style="display:none;">
+                <header>
+                    <h1>Danh mục Đồ uống & Sản phẩm</h1>
+                    <button class="btn-add" style="background:#27ae60;" onclick="openDrinkModal()"><i
+                            class="fa-solid fa-plus"></i> Thêm Sản Phẩm</button>
+                </header>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th class="name-column">Tên Sản Phẩm</th>
+                            <th class="price-column">Đơn Giá</th>
+                            <th class="status-column">Đơn Vị Tính</th>
+                            <th class="action-column">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="drinkTableBody"></tbody>
+                </table>
+            </section>
+
+            <!-- TRANG 3: HÓA ĐƠN & ĐẶT BÀN -->
+            <section id="page-invoices" class="content-page" style="display:none;">
+                <header>
+                    <h1>Hóa đơn & Quản lý bàn</h1>
+                </header>
+                <div class="invoice-layout">
+                    <div class="invoice-list-panel">
+                        <div class="panel-header">Hóa đơn có sẵn</div>
+                        <ul id="invoiceList" class="invoice-list">
+                            <li class="empty-text">Đang tải danh sách hóa đơn...</li>
+                        </ul>
+                    </div>
+
+                    <div class="invoice-detail-panel" id="invoicePanel">
+                        <div id="print-area">
+                            <h2>HÓA ĐƠN</h2>
+                            <p>Mã HD: <b id="displayMaHD">---</b></p>
+                            <p>Bàn: <span id="displayBan">---</span></p>
+                            <p>Nhân viên: <span id="displayNV">---</span></p>
+                            <p>Khách hàng: <span id="displayKH">---</span></p>
+                            <p>Giờ vào: <span id="displayGioVao">---</span></p>
+                            <p>Giờ ra: <span id="displayGioRa">---</span></p>
+                            <p>Trạng thái thanh toán:
+                                <select id="invoicePaymentStatus" onchange="updateInvoiceActionButton(this.value)">
+                                    <option value="Chưa thanh toán">Chưa thanh toán</option>
+                                    <option value="Đã thanh toán">Đã thanh toán</option>
+                                </select>
+                            </p>
+                            <hr>
+                            <div id="itemDetails">
+                                <p class="empty-text">Chọn một hóa đơn để xem...</p>
+                            </div>
+                            <hr>
+                            <h3 class="invoice-total">Tổng: <span id="displayTongTien">0</span> VNĐ</h3>
+                        </div>
+                        <button id="invoiceStatusButton" onclick="saveInvoiceStatusAndPrint()"
+                            class="btn-save full-width">
+                            <i class="fa-solid fa-print"></i> Thanh toán & In
+                        </button>
+                        <button id="invoiceDeleteButton" onclick="deleteSelectedInvoice()" class="btn-delete full-width"
+                            style="display:none; margin-top:12px;">
+                            <i class="fa-solid fa-trash"></i> Xóa hóa đơn
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TRANG KHÁCH HÀNG -->
+            <section id="page-customer" class="content-page" style="display:none;">
+                <div class="customer-welcome">
+                    <div class="customer-grid">
+                        <div class="customer-card highlight">
+                            <h2>Game nổi bật</h2>
+                            <p>Chọn ngay những board game thú vị để khám phá không gian giải trí cùng bạn bè.</p>
+                            <div class="product-gallery" id="customerGameGallery"></div>
+                        </div>
+                        <div class="customer-card">
+                            <h2>Đồ uống ngon miệng</h2>
+                            <p>Thưởng thức đồ uống tươi mát, phù hợp cho cả buổi chơi game dài.</p>
+                            <div class="product-gallery" id="customerDrinkGallery"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="customer-section">
+                    <div class="section-header">
+                        <h2>Tình trạng bàn hiện tại</h2>
+                        <p>Xem chi tiết trạng thái mọi bàn theo dữ liệu bàn và hóa đơn đang phục vụ.</p>
+                        <div class="table-summary" id="customerTableSummary">
+                            <div><span id="tableAvailableCount">0</span> bàn trống</div>
+                            <div><span id="tableBusyCount">0</span> đang có khách</div>
+                        </div>
+                    </div>
+                    <div class="table-grid" id="customerTableStatus"></div>
+                </div>
+
+                <div class="customer-section">
+                    <div class="section-header">
+                        <h2>Đặt bàn của bạn</h2>
+                        <p>Xem các đặt bàn hiện tại và hủy khi cần.</p>
+                    </div>
+                    <div id="customerBookingList" class="booking-list"></div>
+                </div>
+            </section>
+
+            <!-- TRANG QUẢN LÝ KHÁCH HÀNG -->
+            <section id="page-customers" class="content-page" style="display:none;">
+                <header>
+                    <h1>Quản lý Khách hàng</h1>
+                </header>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên Khách hàng</th>
+                            <th>Số điện thoại</th>
+                            <th>Điểm tích lũy</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customerTableBody"></tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal cho Game -->
+    <div id="gameModal" class="modal">
+        <div class="modal-content">
+            <h2 id="gameModalTitle">Thêm Game Mới</h2>
+            <div class="form-group"><label>Tên Game:</label><input type="text" id="gameName"></div>
+            <div class="form-group"><label>Giá thuê:</label><input type="number" id="gamePrice"></div>
+            <div class="form-group">
+                <label>Tình trạng:</label>
+                <select id="gameStatus">
+                    <option value="Sẵn sàng">Sẵn sàng</option>
+                    <option value="Bảo trì">Bảo trì</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button onclick="saveGame()" class="btn-add">Lưu</button>
+                <button onclick="closeModal('gameModal')" class="btn-delete" style="background:#95a5a6;">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal cho Đồ uống -->
+    <div id="drinkModal" class="modal">
+        <div class="modal-content">
+            <h2 id="drinkModalTitle">Thêm Sản Phẩm</h2>
+            <div class="form-group"><label>Tên Sản Phẩm:</label><input type="text" id="drinkName"></div>
+            <div class="form-group"><label>Đơn Giá:</label><input type="number" id="drinkPrice"></div>
+            <div class="form-group"><label>Đơn Vị Tính:</label><input type="text" id="drinkUnit"
+                    placeholder="Ly, Lon, Chai..."></div>
+            <div class="modal-footer">
+                <button onclick="saveDrink()" class="btn-add" style="background:#27ae60;">Lưu</button>
+                <button onclick="closeModal('drinkModal')" class="btn-delete" style="background:#95a5a6;">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal chi tiết khách hàng -->
+    <div id="customerDetailModal" class="modal">
+        <div class="modal-content">
+            <h2 id="customerDetailTitle">Chi tiết sản phẩm</h2>
+            <p id="customerDetailSubtitle" class="eyebrow">Giới thiệu</p>
+            <img id="customerDetailImage" class="modal-detail-image" src="" alt="">
+            <p id="customerDetailDescription">Mô tả sản phẩm sẽ được hiển thị ở đây.</p>
+            <ul id="customerDetailMeta" class="customer-detail-meta"></ul>
+            <div class="modal-footer">
+                <button onclick="closeCustomerDetailModal()" class="btn-cancel">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentEditGameId = null;
+        let currentEditDrinkId = null;
+        let currentBoardGames = [];
+        let currentDrinkItems = [];
+        let currentUser = null;
+        let sessionToken = null;
+        let allCustomerGames = [];
+        let allCustomerDrinks = [];
+        const API_URL = 'http://localhost:3000/api';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initApp();
+            document.getElementById('logoutButton').onclick = logout;
+            document.querySelectorAll('input[name="loginType"]').forEach(radio => {
+                radio.onchange = updateLoginFields;
+            });
+        });
+
+        function initApp() {
+            sessionToken = localStorage.getItem('sessionToken');
+            if (!sessionToken) {
+                showGuestDashboard();
+                return;
+            }
+            loadProfile().then(success => {
+                if (success) {
+                    showDashboard();
+                } else {
+                    showGuestDashboard();
+                }
+            });
+        }
+
+        function showGuestDashboard() {
+            currentUser = { name: 'Khách', role: 'guest' };
+            document.getElementById('loginScreen').style.display = 'none';
+            document.querySelector('.dashboard-container').style.display = 'grid';
+            document.getElementById('bannerGameImage').src = 'images/banner.jpg';
+            updateRoleUI();
+            updateUserInfo();
+            showPage('page-customer', document.querySelector('#navCustomerLink a'));
+        }
+
+        function showLoginScreen() {
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.querySelector('.dashboard-container').style.display = 'none';
+        }
+
+        function showDashboard() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.querySelector('.dashboard-container').style.display = 'grid';
+            document.getElementById('bannerGameImage').src = 'images/banner.jpg';
+            updateRoleUI();
+            if (currentUser.role === 'customer') {
+                showPage('page-customer', document.querySelector('#navCustomerLink a'));
+            } else {
+                showPage('page-games', document.querySelector('#navGamesLink a'));
+            }
+        }
+
+        function updateLoginFields() {
+            const type = document.querySelector('input[name="loginType"]:checked').value;
+            document.getElementById('employeeLogin').style.display = type === 'employee' ? 'block' : 'none';
+            document.getElementById('customerLogin').style.display = type === 'customer' ? 'block' : 'none';
+        }
+
+        async function login() {
+            const roleType = document.querySelector('input[name="loginType"]:checked').value;
+            const payload = { roleType };
+            if (roleType === 'customer') {
+                payload.phone = document.getElementById('loginPhone').value.trim();
+                if (!payload.phone) return alert('Vui lòng nhập số điện thoại.');
+            } else {
+                payload.username = document.getElementById('loginUsername').value.trim();
+                payload.password = document.getElementById('loginPassword').value.trim();
+                if (!payload.username || !payload.password) return alert('Vui lòng nhập tài khoản và mật khẩu.');
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) {
+                    const error = await res.text();
+                    return alert(error || 'Đăng nhập không thành công');
+                }
+                const data = await res.json();
+                sessionToken = data.token;
+                localStorage.setItem('sessionToken', sessionToken);
+                currentUser = { name: data.name, role: data.role, id: data.id };
+                updateUserInfo();
+                showDashboard();
+            } catch (err) {
+                alert('Lỗi kết nối server!');
+                console.error(err);
+            }
+        }
+
+        async function logout() {
+            try {
+                await fetchWithAuth(`${API_URL}/logout`, { method: 'POST' });
+            } catch (err) {
+                console.warn('Không thể đăng xuất an toàn:', err);
+            }
+            currentUser = null;
+            sessionToken = null;
+            localStorage.removeItem('sessionToken');
+            showGuestDashboard();
+        }
+
+        async function loadProfile() {
+            try {
+                const res = await fetchWithAuth(`${API_URL}/profile`);
+                if (!res.ok) return false;
+                currentUser = await res.json();
+                updateUserInfo();
+                return true;
+            } catch (err) {
+                console.error('Lỗi load profile:', err);
+                return false;
+            }
+        }
+
+        function updateUserInfo() {
+            if (!currentUser) return;
+            const displayUser = document.getElementById('displayUser');
+            if (currentUser.role === 'guest') {
+                displayUser.innerHTML = `Xin chào, <b>Khách</b>`;
+            } else {
+                displayUser.innerHTML = `Xin chào, <b>${currentUser.name}</b> <span class="role-tag">[${currentUser.role === 'admin' ? 'Admin' : currentUser.role === 'staff' ? 'Nhân viên' : 'Khách hàng'}]</span>`;
+            }
+        }
+
+        async function fetchWithAuth(url, options = {}) {
+            options.headers = options.headers || {};
+            options.headers['Content-Type'] = 'application/json';
+            if (sessionToken) {
+                options.headers['Authorization'] = `Bearer ${sessionToken}`;
+            }
+            return await fetch(url, options);
+        }
+
+        async function loadCustomerOptions() {
+            try {
+                const [gameRes, drinkRes] = await Promise.all([
+                    fetchWithAuth(`${API_URL}/boardgames`),
+                    fetchWithAuth(`${API_URL}/drinks`)
+                ]);
+                if (gameRes.ok) allCustomerGames = await gameRes.json();
+                if (drinkRes.ok) allCustomerDrinks = await drinkRes.json();
+            } catch (err) {
+                console.error('Lỗi tải tùy chọn game/drink:', err);
+            }
+        }
+
+        async function loadCustomerHome() {
+            await loadCustomerOptions();
+            await Promise.all([loadCustomerGames(), loadCustomerDrinks(), loadCustomerTables()]);
+        }
+
+        async function loadCustomerGames() {
+            try {
+                if (!allCustomerGames.length) {
+                    const res = await fetchWithAuth(`${API_URL}/boardgames`);
+                    if (!res.ok) {
+                        console.error('Lỗi tải game:', await res.text());
+                        return;
+                    }
+                    allCustomerGames = await res.json();
+                }
+                const gallery = document.getElementById('customerGameGallery');
+                gallery.innerHTML = '';
+                allCustomerGames.slice(0, 4).forEach(game => {
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    card.innerHTML = `
+                        <img src="images/games/${game.MaGame}.jpg" alt="${game.TenGame}">
+                        <div class="product-card-body">
+                            <h3>${game.TenGame}</h3>
+                            <p>${game.TinhTrang}</p>
+                            <span>${Number(game.GiaThue).toLocaleString()} VNĐ / giờ</span>
+                        </div>`;
+                    card.onclick = () => openCustomerDetail('game', game.MaGame);
+                    gallery.appendChild(card);
+                });
+            } catch (err) {
+                console.error('Lỗi tải game cho khách hàng:', err);
+            }
+        }
+
+        async function loadCustomerDrinks() {
+            try {
+                if (!allCustomerDrinks.length) {
+                    const res = await fetchWithAuth(`${API_URL}/drinks`);
+                    if (!res.ok) {
+                        console.error('Lỗi tải đồ uống:', await res.text());
+                        return;
+                    }
+                    allCustomerDrinks = await res.json();
+                }
+                const gallery = document.getElementById('customerDrinkGallery');
+                gallery.innerHTML = '';
+                allCustomerDrinks.slice(0, 4).forEach((drink, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    card.innerHTML = `
+                        <img src="images/drinks/${drink.MaSP}.jpg" alt="${drink.TenSP}">
+                        <div class="product-card-body">
+                            <h3>${drink.TenSP}</h3>
+                            <p>${drink.DonViTinh || 'Ly'}</p>
+                            <span>${Number(drink.DonGia).toLocaleString()} VNĐ</span>
+                        </div>`;
+                    card.onclick = () => openCustomerDetail('drink', drink.MaSP);
+                    gallery.appendChild(card);
+                });
+            } catch (err) {
+                console.error('Lỗi tải đồ uống cho khách hàng:', err);
+            }
+        }
+
+        function renderCustomerGameDetails() {
+            const detailGrid = document.getElementById('customerGameDetails');
+            detailGrid.innerHTML = '';
+            if (!allCustomerGames.length) {
+                detailGrid.innerHTML = '<p class="empty-text">Không có game nào để hiển thị.</p>';
+                return;
+            }
+            allCustomerGames.slice(0, 6).forEach(game => {
+                const card = document.createElement('div');
+                card.className = 'detail-card';
+                card.innerHTML = `
+                    <img src="images/games/${game.MaGame}.jpg" alt="${game.TenGame}">
+                    <div class="product-card-body">
+                        <h3>${game.TenGame}</h3>
+                        <p>Giá thuê: <strong>${Number(game.GiaThue).toLocaleString()} VNĐ/giờ</strong></p>
+                        <p>Tình trạng: <strong>${game.TinhTrang}</strong></p>
+                        <p class="detail-meta">Lựa chọn phù hợp cho nhóm 2-6 người, trải nghiệm giải trí vui nhộn.</p>
+                    </div>`;
+                card.onclick = () => openCustomerDetail('game', game.MaGame);
+                detailGrid.appendChild(card);
+            });
+        }
+
+        function renderCustomerDrinkDetails() {
+            const detailGrid = document.getElementById('customerDrinkDetails');
+            detailGrid.innerHTML = '';
+            if (!allCustomerDrinks.length) {
+                detailGrid.innerHTML = '<p class="empty-text">Không có đồ uống nào để hiển thị.</p>';
+                return;
+            }
+            allCustomerDrinks.slice(0, 6).forEach((drink, index) => {
+                const card = document.createElement('div');
+                card.className = 'detail-card';
+                card.innerHTML = `
+                    <img src="images/drinks/${drink.MaSP}.jpg" alt="${drink.TenSP}">
+                    <div class="product-card-body">
+                        <h3>${drink.TenSP}</h3>
+                        <p>Giá: <strong>${Number(drink.DonGia).toLocaleString()} VNĐ</strong></p>
+                        <p>Đơn vị: <strong>${drink.DonViTinh || 'Ly'}</strong></p>
+                        <p class="detail-meta">Phù hợp để nhâm nhi khi chơi game, tươi mát và ngon miệng.</p>
+                    </div>`;
+                card.onclick = () => openCustomerDetail('drink', drink.MaSP);
+                detailGrid.appendChild(card);
+            });
+        }
+
+        function openCustomerDetail(type, id) {
+            const item = type === 'game'
+                ? allCustomerGames.find(game => Number(game.MaGame) === Number(id))
+                : allCustomerDrinks.find(drink => Number(drink.MaSP) === Number(id));
+            if (!item) return;
+
+            const image = document.getElementById('customerDetailImage');
+            const title = document.getElementById('customerDetailTitle');
+            const subTitle = document.getElementById('customerDetailSubtitle');
+            const description = document.getElementById('customerDetailDescription');
+            const metaList = document.getElementById('customerDetailMeta');
+
+            title.innerText = type === 'game' ? item.TenGame : item.TenSP;
+            subTitle.innerText = type === 'game' ? 'Chi tiết Board Game' : 'Chi tiết Đồ uống';
+            if (type === 'game') {
+                image.src = `images/games/${item.MaGame}.jpg`;
+            } else {
+                image.src = `images/drinks/${item.MaSP}.jpg`;
+            }
+            image.alt = type === 'game' ? item.TenGame : item.TenSP;
+
+            if (type === 'game') {
+                description.innerText = item.MoTa || 'Board game thú vị với luật chơi dễ tiếp cận, phù hợp cho nhóm bạn và gia đình.';
+                metaList.innerHTML = `
+                    <li><strong>Giá thuê:</strong> ${Number(item.GiaThue).toLocaleString()} VNĐ / giờ</li>
+                    <li><strong>Tình trạng:</strong> ${item.TinhTrang || 'Chưa rõ'}</li>
+                    <li><strong>Loại:</strong> ${item.TheLoai || 'Thử thách & Giải trí'}</li>
+                `;
+            } else {
+                description.innerText = item.MoTa || 'Đồ uống tươi mát, phù hợp khi thư giãn cùng bạn bè và tận hưởng thời gian chơi game.';
+                metaList.innerHTML = `
+                    <li><strong>Đơn giá:</strong> ${Number(item.DonGia).toLocaleString()} VNĐ</li>
+                    <li><strong>Đơn vị:</strong> ${item.DonViTinh || 'Ly'}</li>
+                    <li><strong>Loại:</strong> ${item.Loai || 'Thức uống'} </li>
+                `;
+            }
+
+            document.getElementById('customerDetailModal').style.display = 'flex';
+        }
+
+        function closeCustomerDetailModal() {
+            document.getElementById('customerDetailModal').style.display = 'none';
+        }
+
+        async function loadCustomerTables() {
+            try {
+                const res = await fetchWithAuth(`${API_URL}/tables`);
+                if (!res.ok) {
+                    const error = await res.text();
+                    console.error('Lỗi tải trạng thái bàn:', error);
+                    document.getElementById('customerTableStatus').innerHTML = '<p class="empty-text">Không thể tải trạng thái bàn.</p>';
+                    return;
+                }
+                const data = await res.json();
+                const tableGrid = document.getElementById('customerTableStatus');
+                let availableCount = 0;
+                let busyCount = 0;
+                tableGrid.innerHTML = '';
+                data.forEach(table => {
+                    if (table.TrangThai === 'Trống') availableCount++;
+                    else busyCount++;
+                    const tableName = table.TenBan && !table.TenBan.toString().startsWith('Bàn') ? `Bàn ${table.TenBan}` : (table.TenBan || `Bàn ${table.MaBan}`);
+                    const gameOptions = allCustomerGames.length
+                        ? `<option value="">Bỏ qua trò chơi</option>${allCustomerGames.map(game => `<option value="${game.MaGame}">${game.TenGame}</option>`).join('')}`
+                        : '<option value="">Đang tải trò chơi...</option>';
+                    const drinkOptions = allCustomerDrinks.length
+                        ? `<option value="">Bỏ qua đồ uống</option>${allCustomerDrinks.map(drink => `<option value="${drink.MaSP}">${drink.TenSP}</option>`).join('')}`
+                        : '<option value="">Đang tải đồ uống...</option>';
+                    const card = document.createElement('div');
+                    card.className = `product-card table-card ${table.TrangThai === 'Trống' ? 'available' : 'busy'}`;
+                    const tableCustomerId = table.MaKH != null ? Number(table.MaKH) : null;
+                    const currentUserId = currentUser && currentUser.id != null ? Number(currentUser.id) : null;
+                    const isCurrentUserBooking = table.TrangThai === 'Đã đặt' && tableCustomerId && currentUserId && tableCustomerId === currentUserId;
+                    card.innerHTML = `
+                        <div class="table-card-header">
+                            <h3>${tableName}</h3>
+                            <span class="table-badge ${table.TrangThai === 'Trống' ? 'badge-green' : 'badge-red'}">
+                                ${table.TrangThai === 'Trống' ? 'Trống' : 'Full'}
+                            </span>
+                        </div>
+                        <div class="table-card-body">
+                            <p class="table-status">${table.TrangThai === 'Trống' ? 'Bàn đang sẵn sàng' : isCurrentUserBooking ? 'Bàn đã có khách' : 'Bàn đã có người đặt trước'}</p>
+                            ${table.TrangThai === 'Trống' ? `
+                                <div class="booking-inputs">
+                                    <label for="timeInput-${table.MaBan}">Thời gian vào</label>
+                                    <input type="datetime-local" id="timeInput-${table.MaBan}" class="booking-select" required>
+                                    <label for="gameSelect-${table.MaBan}">Chọn trò chơi (tùy chọn)</label>
+                                    <select id="gameSelect-${table.MaBan}" class="booking-select">${gameOptions}</select>
+                                    <label for="drinkSelect-${table.MaBan}">Chọn đồ uống (tùy chọn)</label>
+                                    <select id="drinkSelect-${table.MaBan}" class="booking-select">${drinkOptions}</select>
+                                </div>
+                                <button onclick="bookTable(${table.MaBan})">Đặt trước</button>
+                            ` : isCurrentUserBooking ? `
+                                <div class="booking-info">
+                                    <p><strong>Khách:</strong> ${table.KhachHang || 'Khách lẻ'}</p>
+                                    <p><strong>Nhân viên:</strong> ${table.NhanVien || '---'}</p>
+                                    <p><strong>Thời gian vào:</strong> ${formatDateTime(table.GioVao)}</p>
+                                </div>
+                                <button onclick="cancelBooking(${table.MaBan})" class="btn-delete">Hủy đặt</button>
+                            ` : `
+                                <p style="margin: 12px 0 0; color: #475569;">Thông tin chi tiết chỉ hiển thị với khách hàng đã đặt bàn này.</p>
+                                <button disabled style="margin-top: 18px; width: 100%; padding: 12px 16px; border-radius: 999px; border: none; background: #94a3b8; color: white; cursor: not-allowed;">Đã đặt</button>
+                            `}`;
+                    tableGrid.appendChild(card);
+                });
+                const availableEl = document.getElementById('tableAvailableCount');
+                const busyEl = document.getElementById('tableBusyCount');
+                if (availableEl) availableEl.innerText = availableCount;
+                if (busyEl) busyEl.innerText = busyCount;
+                renderCustomerBookingList(data);
+            } catch (err) {
+                console.error('Lỗi tải trạng thái bàn:', err);
+            }
+        }
+
+        function renderCustomerBookingList(tables) {
+            const bookingList = document.getElementById('customerBookingList');
+            bookingList.innerHTML = '';
+            if (!currentUser || !tables || !tables.length) {
+                bookingList.innerHTML = '<p class="empty-text">Không có đặt bàn nào.</p>';
+                return;
+            }
+            const currentUserId = Number(currentUser.id);
+            const bookings = tables.filter(table => table.TrangThai === 'Đã đặt' && table.MaKH != null && Number(table.MaKH) === currentUserId);
+            if (!bookings.length) {
+                bookingList.innerHTML = '<p class="empty-text">Bạn chưa có đặt bàn nào.</p>';
+                return;
+            }
+            bookings.forEach(table => {
+                const item = document.createElement('div');
+                item.className = 'booking-card';
+                item.innerHTML = `
+                    <div class="booking-card-header">
+                        <h3>${table.TenBan || `Bàn ${table.MaBan}`}</h3>
+                        <span class="badge-red">${table.TrangThai}</span>
+                    </div>
+                    <p><strong>Khách:</strong> ${table.KhachHang || 'Khách lẻ'}</p>
+                    <p><strong>Nhân viên:</strong> ${table.NhanVien || '---'}</p>
+                    <p><strong>Thời gian vào:</strong> ${formatDateTime(table.GioVao)}</p>
+                    <button class="btn-delete" onclick="cancelBooking(${table.MaBan})">Hủy đặt bàn</button>
+                `;
+                bookingList.appendChild(item);
+            });
+        }
+
+        function formatSqlDateTime(value) {
+            if (!value) return null;
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return null;
+            const pad = n => String(n).padStart(2, '0');
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:00`;
+        }
+
+        async function bookTable(maBan) {
+            if (!currentUser || currentUser.role === 'guest') {
+                alert('Vui lòng đăng nhập để đặt bàn!');
+                showLoginScreen();
+                return;
+            }
+            try {
+                const timeInput = document.getElementById(`timeInput-${maBan}`);
+                const gameSelect = document.getElementById(`gameSelect-${maBan}`);
+                const drinkSelect = document.getElementById(`drinkSelect-${maBan}`);
+
+                if (!timeInput || !timeInput.value) {
+                    return alert('Vui lòng chọn thời gian vào');
+                }
+                const formattedTime = formatSqlDateTime(timeInput.value);
+                if (!formattedTime) {
+                    return alert('Định dạng thời gian vào không hợp lệ');
+                }
+
+                const payload = { MaBan: maBan, GioVao: formattedTime };
+                if (gameSelect && gameSelect.value) payload.MaGame = parseInt(gameSelect.value, 10);
+                if (drinkSelect && drinkSelect.value) payload.MaSP = parseInt(drinkSelect.value, 10);
+
+                const res = await fetchWithAuth(`${API_URL}/book-table`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) {
+                    const error = await res.text();
+                    return alert(error || 'Không thể đặt trước');
+                }
+                alert('Đặt bàn thành công!');
+                loadCustomerTables();
+            } catch (err) {
+                console.error('Lỗi đặt bàn:', err);
+                alert('Lỗi kết nối khi đặt bàn');
+            }
+        }
+
+        async function cancelBooking(maBan) {
+            if (!confirm('Bạn có chắc chắn muốn hủy đặt bàn này?')) return;
+            try {
+                const res = await fetchWithAuth(`${API_URL}/cancel-booking/${maBan}`, {
+                    method: 'DELETE'
+                });
+                if (!res.ok) {
+                    const error = await res.text();
+                    return alert(error || 'Không thể hủy đặt bàn');
+                }
+                alert('Hủy đặt bàn thành công!');
+                loadCustomerTables();
+            } catch (err) {
+                console.error('Lỗi hủy đặt bàn:', err);
+                alert('Lỗi kết nối khi hủy đặt bàn');
+            }
+        }
+
+        function canManage() {
+            return currentUser && (currentUser.role === 'admin' || currentUser.role === 'staff');
+        }
+
+        function canDelete() {
+            return currentUser && currentUser.role === 'admin';
+        }
+
+        function canViewInvoices() {
+            return currentUser && (currentUser.role === 'admin' || currentUser.role === 'staff');
+        }
+
+        function updateRoleUI() {
+            const customerLink = document.getElementById('navCustomerLink');
+            const gamesLink = document.getElementById('navGamesLink');
+            const drinksLink = document.getElementById('navDrinksLink');
+            const invoicesLink = document.getElementById('navInvoicesLink');
+            const customersLink = document.getElementById('navCustomersLink');
+            const dashboardBanner = document.getElementById('dashboard-banner');
+            const customerBanner = document.getElementById('customer-banner');
+            const bannerAdd = document.querySelector('.dashboard-banner .btn-add');
+            const addGameButton = document.querySelector('#page-games header .btn-add');
+            const addDrinkButton = document.querySelector('#page-drinks header .btn-add');
+
+            if (currentUser.role === 'customer' || currentUser.role === 'guest') {
+                customerLink.style.display = 'block';
+                gamesLink.style.display = 'none';
+                drinksLink.style.display = 'none';
+                invoicesLink.style.display = 'none';
+                customersLink.style.display = 'none';
+                dashboardBanner.style.display = 'none';
+                customerBanner.style.display = 'block';
+            } else {
+                customerLink.style.display = 'none';
+                gamesLink.style.display = 'block';
+                drinksLink.style.display = 'block';
+                invoicesLink.style.display = currentUser.role === 'admin' || currentUser.role === 'staff' ? 'block' : 'none';
+                customersLink.style.display = currentUser.role === 'admin' ? 'block' : 'none';
+                dashboardBanner.style.display = 'block';
+                customerBanner.style.display = 'none';
+            }
+
+            if (!canViewInvoices()) {
+                if (invoicesLink) invoicesLink.style.display = 'none';
+            }
+
+            if (canManage()) {
+                if (bannerAdd) bannerAdd.style.display = 'inline-flex';
+                if (addGameButton) addGameButton.style.display = 'inline-flex';
+                if (addDrinkButton) addDrinkButton.style.display = 'inline-flex';
+            } else {
+                if (bannerAdd) bannerAdd.style.display = 'none';
+                if (addGameButton) addGameButton.style.display = 'none';
+                if (addDrinkButton) addDrinkButton.style.display = 'none';
+            }
+
+            const loginNav = document.getElementById('loginNavButton');
+            const logoutNav = document.getElementById('logoutButton');
+            if (currentUser.role === 'guest') {
+                if (loginNav) loginNav.style.display = 'inline-block';
+                if (logoutNav) logoutNav.style.display = 'none';
+            } else {
+                if (loginNav) loginNav.style.display = 'none';
+                if (logoutNav) logoutNav.style.display = 'inline-block';
+            }
+        }
+
+        // 1. Chuyển trang
+        function showPage(pageId, element) {
+            if (pageId === 'page-invoices' && !canViewInvoices()) {
+                alert('Bạn không có quyền xem hóa đơn.');
+                return;
+            }
+            if (pageId === 'page-customers' && currentUser.role !== 'admin') {
+                alert('Chỉ admin mới có quyền quản lý khách hàng.');
+                return;
+            }
+            document.querySelectorAll('.content-page').forEach(p => p.style.display = 'none');
+            document.getElementById(pageId).style.display = 'block';
+            document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+            if (element) element.classList.add('active');
+
+            if (pageId === 'page-games') loadBoardGames();
+            if (pageId === 'page-drinks') loadDrinks();
+            if (pageId === 'page-invoices') loadInvoices();
+            if (pageId === 'page-customers') loadCustomers();
+            if (pageId === 'page-customer') loadCustomerHome();
+        }
+
+        // 2. Xử lý Board Games
+        async function loadBoardGames() {
+            try {
+                const res = await fetchWithAuth(`${API_URL}/boardgames`);
+                if (!res.ok) {
+                    console.error('Lỗi tải game:', await res.text());
+                    return;
+                }
+                const data = await res.json();
+                currentBoardGames = data;
+                const tableBody = document.getElementById('gameTableBody');
+                tableBody.innerHTML = '';
+
+                data.forEach(game => {
+                    const tr = document.createElement('tr');
+                    const editButton = canManage() ? `<button class="btn-edit" onclick="openEditGame(${game.MaGame})">Sửa</button>` : '';
+                    const deleteButton = canDelete() ? `<button class="btn-delete" onclick="deleteGame(${game.MaGame})">Xóa</button>` : '';
+                    tr.innerHTML = `
+                        <td>${game.MaGame}</td>
+                        <td class="name-cell">${game.TenGame}</td>
+                        <td class="price-cell">${Number(game.GiaThue).toLocaleString()}</td>
+                        <td class="status-cell"><span class="status ready">${game.TinhTrang}</span></td>
+                        <td class="action-cell">${editButton}${deleteButton}</td>`;
+                    tableBody.appendChild(tr);
+                });
+            } catch (err) { console.error("Lỗi load game:", err); }
+        }
+
+        function openGameModal() {
+            currentEditGameId = null;
+            document.getElementById('gameModalTitle').innerText = "Thêm Game Mới";
+            document.getElementById('gameName').value = '';
+            document.getElementById('gamePrice').value = '';
+            document.getElementById('gameStatus').value = 'Sẵn sàng';
+            document.getElementById('gameModal').style.display = 'flex';
+        }
+
+        function openEditGame(id) {
+            const game = currentBoardGames.find(item => Number(item.MaGame) === Number(id));
+            if (!game) return alert('Không tìm thấy game để sửa.');
+            currentEditGameId = game.MaGame;
+            document.getElementById('gameModalTitle').innerText = "Cập Nhật Game #" + game.MaGame;
+            document.getElementById('gameName').value = game.TenGame;
+            document.getElementById('gamePrice').value = game.GiaThue;
+            document.getElementById('gameStatus').value = game.TinhTrang;
+            document.getElementById('gameModal').style.display = 'flex';
+        }
+
+        async function saveGame() {
+            const data = {
+                TenGame: document.getElementById('gameName').value,
+                GiaThue: parseInt(document.getElementById('gamePrice').value),
+                TinhTrang: document.getElementById('gameStatus').value
+            };
+            if (!data.TenGame || !data.GiaThue) return alert("Vui lòng nhập đủ thông tin!");
+
+            const method = currentEditGameId ? 'PUT' : 'POST';
+            const url = currentEditGameId ? `${API_URL}/boardgames/${currentEditGameId}` : `${API_URL}/boardgames`;
+
+            try {
+                const res = await fetchWithAuth(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) { closeModal('gameModal'); loadBoardGames(); }
+            } catch (err) { alert("Lỗi kết nối server!"); }
+        }
+
+        async function deleteGame(id) {
+            if (!confirm("Bạn có chắc muốn xóa game này không?")) return;
+            try {
+                const res = await fetchWithAuth(`${API_URL}/boardgames/${id}`, { method: 'DELETE' });
+                if (res.ok) loadBoardGames();
+                else alert("Không thể xóa game này!");
+            } catch (err) { alert("Lỗi kết nối server!"); }
+        }
+
+        // 3. Xử lý Đồ uống
+        async function loadDrinks() {
+            try {
+                const res = await fetchWithAuth(`${API_URL}/drinks`);
+                if (!res.ok) {
+                    console.error('Lỗi tải đồ uống:', await res.text());
+                    return;
+                }
+                const data = await res.json();
+                currentDrinkItems = data;
+                const tableBody = document.getElementById('drinkTableBody');
+                tableBody.innerHTML = '';
+
+                data.forEach(d => {
+                    const tr = document.createElement('tr');
+                    const editButton = canManage() ? `<button class="btn-edit" onclick="openEditDrink(${d.MaSP})">Sửa</button>` : '';
+                    const deleteButton = canDelete() ? `<button class="btn-delete" onclick="deleteDrink(${d.MaSP})">Xóa</button>` : '';
+                    tr.innerHTML = `
+                        <td>${d.MaSP}</td>
+                        <td class="name-cell">${d.TenSP}</td>
+                        <td class="price-cell">${Number(d.DonGia).toLocaleString()}</td>
+                        <td class="status-cell">${d.DonViTinh || d.Loai || 'Ly'}</td>
+                        <td class="action-cell">${editButton}${deleteButton}</td>`;
+                    tableBody.appendChild(tr);
+                });
+            } catch (err) { console.error("Lỗi load sản phẩm:", err); }
+        }
+
+        async function loadInvoices() {
+            try {
+                const res = await fetchWithAuth(`${API_URL}/invoices`);
+                if (!res.ok) {
+                    console.error('Lỗi tải hóa đơn:', await res.text());
+                    return;
+                }
+                const data = await res.json();
+                const invoiceList = document.getElementById('invoiceList');
+                invoiceList.innerHTML = '';
+
+                if (!Array.isArray(data) || data.length === 0) {
+                    invoiceList.innerHTML = '<li class="empty-text">Hiện không có hóa đơn nào.</li>';
+                    return;
+                }
+
+                data.forEach(inv => {
+                    const item = document.createElement('li');
+                    item.className = 'invoice-item';
+                    item.dataset.invoiceId = inv.MaHD;
+                    item.innerHTML = `
+                        <div class="invoice-item-title">HD #${inv.MaHD} - ${inv.TenBan}</div>
+                        <div class="invoice-item-meta">${inv.TrangThaiThanhToan} • ${formatDateTime(inv.GioVao)}</div>
+                        <div class="invoice-item-total">${Number(inv.TongTien).toLocaleString()} VNĐ</div>`;
+                    item.onclick = () => selectInvoice(inv.MaHD, item);
+                    invoiceList.appendChild(item);
+                });
+
+                selectInvoice(data[0].MaHD, invoiceList.querySelector('.invoice-item'));
+            } catch (err) {
+                console.error("Lỗi load hóa đơn:", err);
+                document.getElementById('invoiceList').innerHTML = '<li class="empty-text">Không thể tải hóa đơn.</li>';
+            }
+        }
+
+        async function selectInvoice(id, element) {
+            document.querySelectorAll('.invoice-item').forEach(item => item.classList.remove('active'));
+            if (element) element.classList.add('active');
+
+            try {
+                const res = await fetchWithAuth(`${API_URL}/invoices/${id}`);
+                if (!res.ok) {
+                    console.error('Lỗi tải chi tiết hóa đơn:', await res.text());
+                    return;
+                }
+                const data = await res.json();
+                const invoice = data.invoice;
+                const itemDetails = document.getElementById('itemDetails');
+                const deleteInvoiceButton = document.getElementById('invoiceDeleteButton');
+
+                document.getElementById('displayMaHD').innerText = invoice.MaHD;
+                document.getElementById('displayBan').innerText = invoice.TenBan;
+                document.getElementById('displayNV').innerText = invoice.NhanVien;
+                document.getElementById('displayKH').innerText = invoice.KhachHang || 'Khách lẻ';
+                document.getElementById('displayGioVao').innerText = formatDateTime(invoice.GioVao);
+                document.getElementById('displayGioRa').innerText = invoice.GioRa ? formatDateTime(invoice.GioRa) : '---';
+                document.getElementById('displayTongTien').innerText = Number(invoice.TongTien).toLocaleString();
+                document.getElementById('invoicePaymentStatus').value = invoice.TrangThaiThanhToan || 'Chưa thanh toán';
+                updateInvoiceActionButton(invoice.TrangThaiThanhToan || 'Chưa thanh toán');
+                deleteInvoiceButton.style.display = canDelete() ? 'block' : 'none';
+
+                itemDetails.innerHTML = '';
+                if (Array.isArray(data.drinks) && data.drinks.length) {
+                    const drinksBlock = document.createElement('div');
+                    drinksBlock.innerHTML = '<h4>Đồ uống</h4>' + data.drinks.map(d => `<p>${d.TenSP} x${d.SoLuong} = ${Number(d.ThanhTien).toLocaleString()} VNĐ</p>`).join('');
+                    itemDetails.appendChild(drinksBlock);
+                }
+                if (Array.isArray(data.games) && data.games.length) {
+                    const gamesBlock = document.createElement('div');
+                    gamesBlock.innerHTML = '<h4>Thuê game</h4>' + data.games.map(g => `<p>${g.TenGame} x${g.SoLuong} = ${Number(g.ThanhTien).toLocaleString()} VNĐ</p>`).join('');
+                    itemDetails.appendChild(gamesBlock);
+                }
+                if ((!data.drinks || data.drinks.length === 0) && (!data.games || data.games.length === 0)) {
+                    itemDetails.innerHTML = '<p class="empty-text">Hóa đơn chưa có chi tiết.</p>';
+                }
+            } catch (err) {
+                console.error("Lỗi load chi tiết hóa đơn:", err);
+            }
+        }
+
+        function updateInvoiceActionButton(status) {
+            const button = document.getElementById('invoiceStatusButton');
+            if (!button) return;
+            if (status === 'Đã thanh toán') {
+                button.innerHTML = '<i class="fa-solid fa-print"></i> In hóa đơn';
+            } else {
+                button.innerHTML = '<i class="fa-solid fa-print"></i> Thanh toán & In';
+            }
+        }
+
+        async function saveInvoiceStatusAndPrint() {
+            const invoiceId = document.getElementById('displayMaHD').innerText;
+            if (!invoiceId || invoiceId === '---') return;
+
+            const newStatus = document.getElementById('invoicePaymentStatus').value;
+            try {
+                const res = await fetchWithAuth(`${API_URL}/invoices/${invoiceId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ TrangThaiThanhToan: newStatus })
+                });
+
+                if (!res.ok) {
+                    alert('Cập nhật trạng thái hóa đơn thất bại.');
+                    return;
+                }
+
+                await loadInvoices();
+                const selectedElement = document.querySelector(`#invoiceList [data-invoice-id=\"${invoiceId}\"]`);
+                await selectInvoice(invoiceId, selectedElement);
+                window.print();
+            } catch (err) {
+                console.error('Lỗi cập nhật trạng thái hóa đơn:', err);
+                alert('Lỗi khi cập nhật trạng thái hóa đơn. Vui lòng thử lại.');
+            }
+        }
+
+        async function deleteSelectedInvoice() {
+            const invoiceId = document.getElementById('displayMaHD').innerText;
+            if (!invoiceId || invoiceId === '---') return;
+            if (!confirm('Bạn có chắc chắn muốn xóa hóa đơn này?')) return;
+
+            try {
+                const res = await fetchWithAuth(`${API_URL}/invoices/${invoiceId}`, { method: 'DELETE' });
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    alert(errorText || 'Không thể xóa hóa đơn.');
+                    return;
+                }
+
+                await loadInvoices();
+                const invoiceList = document.getElementById('invoiceList');
+                if (!invoiceList.querySelector('.invoice-item')) {
+                    document.getElementById('displayMaHD').innerText = '---';
+                    document.getElementById('displayBan').innerText = '---';
+                    document.getElementById('displayNV').innerText = '---';
+                    document.getElementById('displayKH').innerText = '---';
+                    document.getElementById('displayGioVao').innerText = '---';
+                    document.getElementById('displayGioRa').innerText = '---';
+                    document.getElementById('displayTongTien').innerText = '0';
+                    document.getElementById('itemDetails').innerHTML = '<p class="empty-text">Chọn một hóa đơn để xem...</p>';
+                    document.getElementById('invoiceDeleteButton').style.display = 'none';
+                }
+            } catch (err) {
+                console.error('Lỗi xóa hóa đơn:', err);
+                alert('Lỗi khi xóa hóa đơn. Vui lòng thử lại.');
+            }
+        }
+
+        function formatDateTime(value) {
+            if (!value) return '---';
+            const date = new Date(value);
+            return date.toLocaleString('vi-VN', { dateStyle: 'short', timeStyle: 'short' });
+        }
+
+        function openDrinkModal() {
+            currentEditDrinkId = null;
+            document.getElementById('drinkModalTitle').innerText = "Thêm Sản Phẩm Mới";
+            document.getElementById('drinkName').value = '';
+            document.getElementById('drinkPrice').value = '';
+            document.getElementById('drinkUnit').value = '';
+            document.getElementById('drinkModal').style.display = 'flex';
+        }
+
+        function openEditDrink(id) {
+            const drink = currentDrinkItems.find(item => Number(item.MaSP) === Number(id));
+            if (!drink) return alert('Không tìm thấy sản phẩm để sửa.');
+            currentEditDrinkId = drink.MaSP;
+            document.getElementById('drinkModalTitle').innerText = "Sửa Sản Phẩm #" + drink.MaSP;
+            document.getElementById('drinkName').value = drink.TenSP;
+            document.getElementById('drinkPrice').value = drink.DonGia;
+            document.getElementById('drinkUnit').value = drink.DonViTinh || drink.Loai;
+            document.getElementById('drinkModal').style.display = 'flex';
+        }
+
+        async function saveDrink() {
+            const data = {
+                TenSP: document.getElementById('drinkName').value,
+                DonGia: parseInt(document.getElementById('drinkPrice').value),
+                DonViTinh: document.getElementById('drinkUnit').value
+            };
+
+            const method = currentEditDrinkId ? 'PUT' : 'POST';
+            const url = currentEditDrinkId ? `${API_URL}/drinks/${currentEditDrinkId}` : `${API_URL}/drinks`;
+
+            try {
+                const res = await fetchWithAuth(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) { closeModal('drinkModal'); loadDrinks(); }
+            } catch (err) { alert("Lỗi server!"); }
+        }
+
+        async function deleteDrink(id) {
+            if (!confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) return;
+            try {
+                const res = await fetchWithAuth(`${API_URL}/drinks/${id}`, { method: 'DELETE' });
+                if (res.ok) loadDrinks();
+            } catch (err) { alert("Lỗi kết nối!"); }
+        }
+
+        // 4. Xử lý Khách hàng
+        async function loadCustomers() {
+            try {
+                const res = await fetchWithAuth(`${API_URL}/customers`);
+                if (!res.ok) {
+                    console.error('Lỗi tải khách hàng:', await res.text());
+                    return;
+                }
+                const data = await res.json();
+                const tableBody = document.getElementById('customerTableBody');
+                tableBody.innerHTML = '';
+
+                data.forEach(customer => {
+                    const tr = document.createElement('tr');
+                    const deleteButton = canDelete() ? `<button class="btn-delete" onclick="deleteCustomer(${customer.MaKH})">Xóa</button>` : '';
+                    tr.innerHTML = `
+                        <td>${customer.MaKH}</td>
+                        <td>${customer.TenKH}</td>
+                        <td>${customer.SoDienThoai}</td>
+                        <td>${Number(customer.DiemTichLuy).toLocaleString()}</td>
+                        <td class="action-cell">${deleteButton}</td>`;
+                    tableBody.appendChild(tr);
+                });
+            } catch (err) { console.error("Lỗi load khách hàng:", err); }
+        }
+
+        async function deleteCustomer(id) {
+            if (!confirm("Bạn có chắc chắn muốn xóa khách hàng này?")) return;
+            try {
+                const res = await fetchWithAuth(`${API_URL}/customers/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    loadCustomers();
+                } else {
+                    const error = await res.text();
+                    alert(error || 'Không thể xóa khách hàng');
+                }
+            } catch (err) { alert("Lỗi kết nối!"); }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+
+</html>

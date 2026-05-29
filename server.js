@@ -16,11 +16,11 @@ app.get('/', (req, res) => {
 
 // Cấu hình kết nối linh hoạt bốc từ Biến môi trường tự động của Railway/Render
 const pool = mysql.createPool({
-    host: process.env.DB_SERVER,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: parseInt(process.env.DB_PORT) || 3306,
+    host: process.env.DB_SERVER || 'mysql://root:GDOdIqgEJyZqnrbBauHUpdCQFKYWQFCJ@zephyr.proxy.rlwy.net:50215/railway', // Thay thế host public của bạn vào đây nếu chạy local
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'railway',
+    port: parseInt(process.env.DB_PORT || '3306', 10),
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
